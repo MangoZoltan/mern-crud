@@ -1,23 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import Axios from 'axios';
+import {useState, useEffect } from 'react';
 
 function App() {
+  const [author, setAuthor]   = useState('');
+  const [title, setTitle]    = useState('');
+  const [bookList, setBookList] = useState([]);
+
+  useEffect( () => {
+    Axios.get('http://localhost:5000/book')
+      .then((response) => {setBookList(response.data)})
+      .catch((error) => console.log(error.message));
+  }, []);
+
+  const feltolt = () => {
+    Axios.post('http://localhost:5000/book/tolt', {author, title})
+      .then(setBookList([...bookList, {author,title}]))
+      .catch((error) => console.log(error.message));
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <div>
+        {bookList.map((book) => (
+          <ul key={book._id}>
+            <li>{book.author}</li>
+            <li>{book.title}</li>
+          </ul>
+        ))}
+      </div>
+      <div>
+        <input type="text" placeholder='Szerző' onChange={(e) => setAuthor(e.target.value)}/><br/>
+        <input type="text" placeholder='Cím'  onChange={(e) => setTitle(e.target.value)}/><br/>
+        <button onClick={feltolt}>Feltölt</button>
+      </div>
     </div>
   );
 }
